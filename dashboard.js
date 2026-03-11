@@ -15,12 +15,12 @@ async function carregarDashboard(periodo) {
     const resposta = await fetch(url);
     const dados = await resposta.json();
     const vendas = dados.vendas;
-    const temp = vendas.filter(venda => venda.status === 'aprovada');
-    const total = temp.reduce((soma, item) => soma + item.valor, 0);
+    const vendasAprovadas = vendas.filter(venda => venda.status === 'aprovada');
+    const total = vendasAprovadas.reduce((soma, item) => soma + item.valor, 0);
     const resultado = {
       total,
-      quantidade: temp.length,
-      itens: temp,
+      quantidade: vendasAprovadas.length,
+      itens: vendasAprovadas,
       totalComImposto: total * (1 + TAXA_IMPOSTO)
     };
     return resultado;
@@ -70,8 +70,8 @@ function verificarAlertas(metricas, meta) {
   } else {
     alertas.push({ tipo: 'ok', msg: `Meta atingida: ${percentual.toFixed(1)}%` });
   }
-  const data2 = new Date();
-  alertas.push({ tipo: 'info', msg: `Atualizado em: ${data2}` });
+  const dataAtualizacao = new Date();
+  alertas.push({ tipo: 'info', msg: `Atualizado em: ${dataAtualizacao}` });
   return alertas;
 }
 
