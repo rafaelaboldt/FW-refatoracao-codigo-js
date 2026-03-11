@@ -19,7 +19,7 @@ function carregarDashboard(periodo, callback) {
       const vendas = dados.vendas;
       const temp = [];
       for (let i = 0; i < vendas.length; i++) {
-        if (vendas[i].status == 'aprovada') {
+        if (vendas[i].status === 'aprovada') {
           temp.push(vendas[i]);
         }
       }
@@ -61,7 +61,7 @@ function classificarVendedores(vendedores) {
   }
   const ativos = [];
   for (let i = 0; i < lista.length; i++) {
-    if (lista[i].ativo == true) {
+    if (lista[i].ativo === true) {
       ativos.push(lista[i]);
     } else {
       console.log('Vendedor inativo: ' + lista[i].nome);
