@@ -15,20 +15,14 @@ async function carregarDashboard(periodo) {
     const resposta = await fetch(url);
     const dados = await resposta.json();
     const vendas = dados.vendas;
-    const temp = [];
-    for (let i = 0; i < vendas.length; i++) {
-      if (vendas[i].status === 'aprovada') {
-        temp.push(vendas[i]);
-      }
-    }
-    const resultado = {};
-    resultado.total = 0;
-    resultado.quantidade = temp.length;
-    resultado.itens = temp;
-    for (let i = 0; i < temp.length; i++) {
-      resultado.total = resultado.total + temp[i].valor;
-    }
-    resultado.totalComImposto = resultado.total + (resultado.total * TAXA_IMPOSTO);
+    const temp = vendas.filter(venda => venda.status === 'aprovada');
+    const total = temp.reduce((soma, item) => soma + item.valor, 0);
+    const resultado = {
+      total,
+      quantidade: temp.length,
+      itens: temp,
+      totalComImposto: total * (1 + TAXA_IMPOSTO)
+    };
     return resultado;
   } catch (erro) {
     console.error('Erro ao carregar dashboard:', erro);
@@ -49,37 +43,24 @@ function formatarRelatorio(dados) {
  
 // Classifica vendedores por performance
 function classificarVendedores(vendedores) {
-  const chaves = Object.keys(vendedores);
-  const lista = [];
-  for (let i = 0; i < chaves.length; i++) {
-    const item = new Object();
-    item.nome = chaves[i];
-    item.total = vendedores[chaves[i]].total;
-    item.ativo = vendedores[chaves[i]].ativo;
-    lista.push(item);
-  }
-  const ativos = [];
-  for (let i = 0; i < lista.length; i++) {
-    if (lista[i].ativo === true) {
-      ativos.push(lista[i]);
-    } else {
-      console.log(`Vendedor inativo: ${lista[i].nome}`);
-    }
-  }
-  ativos.sort(function(a, b) {
-    if (a.total > b.total) { return -1; }
-    if (a.total < b.total) { return 1; }
-    return 0;
-  });
+  const lista = Object.entries(vendedores).map(([nome, dados]) => ({
+    nome,
+    total: dados.total,
+    ativo: dados.ativo
+  }));
+  
+  const inativos = lista.filter(item => item.ativo === false);
+  inativos.forEach(item => console.log(`Vendedor inativo: ${item.nome}`));
+  
+  const ativos = lista.filter(item => item.ativo === true);
+  ativos.sort((a, b) => b.total - a.total);
   return ativos;
 }
  
 // Verifica alertas de meta
 function verificarAlertas(metricas, meta) {
   const alertas = [];
-  metricas.itens = metricas.itens.filter(function(item) {
-    return item.valor > 0;
-  });
+  metricas.itens = metricas.itens.filter(item => item.valor > 0);
   const percentual = (metricas.total / meta) * 100;
   if (percentual < LIMITE_ALERTA) {
     alertas.push({
