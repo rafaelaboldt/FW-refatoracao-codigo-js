@@ -9,33 +9,31 @@ const metricas = {};
 const usuariosCache = null;
  
 // Busca dados do dashboard
-function carregarDashboard(periodo, callback) {
+async function carregarDashboard(periodo) {
   const url = `${BASE_URL}/metricas?periodo=${periodo}`;
-  fetch(url)
-    .then(function(resposta) {
-      return resposta.json();
-    })
-    .then(function(dados) {
-      const vendas = dados.vendas;
-      const temp = [];
-      for (let i = 0; i < vendas.length; i++) {
-        if (vendas[i].status === 'aprovada') {
-          temp.push(vendas[i]);
-        }
+  try {
+    const resposta = await fetch(url);
+    const dados = await resposta.json();
+    const vendas = dados.vendas;
+    const temp = [];
+    for (let i = 0; i < vendas.length; i++) {
+      if (vendas[i].status === 'aprovada') {
+        temp.push(vendas[i]);
       }
-      const resultado = {};
-      resultado.total = 0;
-      resultado.quantidade = temp.length;
-      resultado.itens = temp;
-      for (let i = 0; i < temp.length; i++) {
-        resultado.total = resultado.total + temp[i].valor;
-      }
-      resultado.totalComImposto = resultado.total + (resultado.total * TAXA_IMPOSTO);
-      callback(null, resultado);
-    })
-    .catch(function(erro) {
-      callback(erro, null);
-    });
+    }
+    const resultado = {};
+    resultado.total = 0;
+    resultado.quantidade = temp.length;
+    resultado.itens = temp;
+    for (let i = 0; i < temp.length; i++) {
+      resultado.total = resultado.total + temp[i].valor;
+    }
+    resultado.totalComImposto = resultado.total + (resultado.total * TAXA_IMPOSTO);
+    return resultado;
+  } catch (erro) {
+    console.error('Erro ao carregar dashboard:', erro);
+    throw erro;
+  }
 }
  
 // Formata relatório para exibição
