@@ -10,7 +10,7 @@ const usuariosCache = null;
  
 // Busca dados do dashboard
 function carregarDashboard(periodo, callback) {
-  const url = BASE_URL + '/metricas?periodo=' + periodo;
+  const url = `${BASE_URL}/metricas?periodo=${periodo}`;
   fetch(url)
     .then(function(resposta) {
       return resposta.json();
@@ -40,11 +40,12 @@ function carregarDashboard(periodo, callback) {
  
 // Formata relatório para exibição
 function formatarRelatorio(dados) {
-  let relatorio = '';
-  relatorio = relatorio + '<h2>Relatório de Vendas</h2>';
-  relatorio = relatorio + '<p>Total: R$ ' + dados.total.toFixed(2) + '</p>';
-  relatorio = relatorio + '<p>Com impostos: R$ ' + dados.totalComImposto.toFixed(2) + '</p>';
-  relatorio = relatorio + '<p>Quantidade: ' + dados.quantidade + '</p>';
+  const relatorio = `
+    <h2>Relatório de Vendas</h2>
+    <p>Total: R$ ${dados.total.toFixed(2)}</p>
+    <p>Com impostos: R$ ${dados.totalComImposto.toFixed(2)}</p>
+    <p>Quantidade: ${dados.quantidade}</p>
+  `;
   return relatorio;
 }
  
@@ -64,7 +65,7 @@ function classificarVendedores(vendedores) {
     if (lista[i].ativo === true) {
       ativos.push(lista[i]);
     } else {
-      console.log('Vendedor inativo: ' + lista[i].nome);
+      console.log(`Vendedor inativo: ${lista[i].nome}`);
     }
   }
   ativos.sort(function(a, b) {
@@ -85,13 +86,13 @@ function verificarAlertas(metricas, meta) {
   if (percentual < LIMITE_ALERTA) {
     alertas.push({
       tipo: 'perigo',
-      msg: 'Meta em ' + percentual.toFixed(1) + '% — abaixo do limite de ' + LIMITE_ALERTA + '%'
+      msg: `Meta em ${percentual.toFixed(1)}% — abaixo do limite de ${LIMITE_ALERTA}%`
     });
   } else {
-    alertas.push({ tipo: 'ok', msg: 'Meta atingida: ' + percentual.toFixed(1) + '%' });
+    alertas.push({ tipo: 'ok', msg: `Meta atingida: ${percentual.toFixed(1)}%` });
   }
   const data2 = new Date();
-  alertas.push({ tipo: 'info', msg: 'Atualizado em: ' + data2 });
+  alertas.push({ tipo: 'info', msg: `Atualizado em: ${data2}` });
   return alertas;
 }
 
